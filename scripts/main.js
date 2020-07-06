@@ -1,6 +1,7 @@
 let currentNum = '';
 let lastNum = '';
-let operator = 'i';
+let allNums = [];
+let operators = [];
 let result = '';
 let screenTop = document.querySelector('.screen-top');
 let screenBottom = document.querySelector('.screen-bottom');
@@ -18,48 +19,50 @@ function buildCurrentCalc() {
     if (currentNum == result) currentNum = '';
     currentNum += this.innerHTML;
     screenTop.innerHTML += this.innerHTML;
-    console.log(currentNum, lastNum);
 }
 
 function setOperatorAndResetNum() {
-    operator = this.innerHTML;
-    lastNum = currentNum;
+    operators.push(this.innerHTML);
+    allNums.push(currentNum);
     currentNum = '';
-    screenTop.innerHTML += ` ${operator} `;
+    screenTop.innerHTML += ` ${this.innerHTML} `;
 }
 
 function clearScreen() {
     operator = 'clear';
     currentNum = '';
-    lastNum = '';
+    allNums = [];
+    operators = []
     screenTop.innerHTML = '';
-    evaluateCalc();
+    screenBottom.innerHTML = '0';
 }
 
 function evaluateCalc() {
-    switch (operator) {
-        case '+':
-            result = parseFloat(currentNum) + parseFloat(lastNum);
-            break;
-        case '-':
-            result = parseFloat(lastNum) - parseFloat(currentNum);
-            break;
-        case 'x':
-            result = parseFloat(currentNum) * parseFloat(lastNum);
-            break;
-        case '/':
-            result = parseFloat(lastNum) / parseFloat(currentNum);
-            break;
-        case 'clear':
-            result = '0';
-            break;
-        default:
-            result = 'error';
-    }
-    console.log(result);
-    screenBottom.innerHTML = result;
+    allNums.push(currentNum);
+    result = parseFloat(allNums.shift());
+    allNums.forEach(num => {
+        switch (operators.shift()) {
+            case '+':
+                result += parseFloat(num);
+                break;
+            case '-':
+                result -= parseFloat(num);
+                break;
+            case 'x':
+                result *= parseFloat(num);
+                break;
+            case '/':
+                result /= parseFloat(num);
+                break;
+            default:
+                result = 'error';
+        }
+    });
+    
+    screenBottom.innerHTML = +result.toFixed(3);
     if (result == 'error') result = '';
     currentNum = result;
-    operator = '';
+    operators = [];
+    allNums = [];
     screenTop.innerHTML = '';
 }
